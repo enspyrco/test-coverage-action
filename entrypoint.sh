@@ -1,3 +1,4 @@
 #!/bin/sh -l
 
-flutter doctor
+cd $GITHUB_WORKSPACE/test
+flutter test
