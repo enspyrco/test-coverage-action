@@ -1,0 +1,6 @@
+# action.yml
+name: 'Test Coverage'
+description: 'Calculate test coverage and generate html'
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
