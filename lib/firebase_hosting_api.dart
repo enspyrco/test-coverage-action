@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:deploy_coverage/constants.dart';
+import 'package:deploy_coverage/upload_metadata.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:googleapis_auth/googleapis_auth.dart';
 
@@ -52,40 +52,49 @@ class FirebaseHostingApi {
           }
         }));
 
-    var versionJson = jsonDecode(response.body);
-    return versionJson['name'];
+    var versionName = jsonDecode(response.body)['name'];
+
+    print('\n\nRetrieved version: $versionName');
+
+    return versionName;
   }
 
   Future<List<String>> populateFiles({
-    required JsonMap json,
+    required UploadData uploadData,
     required String versionName,
   }) async {
     var populateUri = Uri.https(host, '/v1beta1/$versionName:populateFiles');
+    print('\n\nPopulating files...');
 
     var populateResponse = await _client.post(
       populateUri,
       headers: {'Content-type': 'application/json'},
-      body: jsonEncode(json),
+      body: jsonEncode(uploadData.json),
     );
 
     var responseJson = jsonDecode(populateResponse.body);
 
     _uploadUrl = responseJson['uploadUrl'];
 
-    return List<String>.from(
+    var requiredHashes = List<String>.from(
         (responseJson['uploadRequiredHashes'] ?? []) as List<dynamic>);
+
+    print('Required hashes: $requiredHashes');
+
+    return requiredHashes;
   }
 
   Future<void> uploadFiles({
     required List<String> requiredHashes,
-    required Map<String, Uint8List> bytesFor,
+    required UploadData uploadData,
   }) async {
+    int i = 1, total = requiredHashes.length;
     for (var hash in requiredHashes) {
-      var uploadResponse = await _client.post(Uri.parse('$_uploadUrl/$hash'),
+      await _client.post(Uri.parse('$_uploadUrl/$hash'),
           headers: {'Content-Type': 'application/octet-stream'},
-          body: bytesFor[hash]);
+          body: uploadData.bytesFor[hash]);
 
-      print('Uploaded $hash with response: ${uploadResponse.body}');
+      print('Uploaded ${i++}/$total - ${uploadData.pathFor[hash]}.');
     }
   }
 

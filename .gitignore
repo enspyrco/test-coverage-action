@@ -7,5 +7,4 @@ build/
 
 # Files used during prototyping & testing
 key.json
-html/
 .firebaserc

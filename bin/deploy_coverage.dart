@@ -7,13 +7,21 @@ void main(List<String> arguments) async {
   final api = await FirebaseHostingApi.create(
       key: File('key.json').readAsStringSync()); // arguments.first
 
-  final upload = UploadMetadata()..calculateHashes();
+  final upload = await UploadData.createFrom(directory: arguments.first);
 
   var version = await api.retrieveVersion();
-  var hashes =
-      await api.populateFiles(json: upload.filesJson, versionName: version);
+  var hashes = await api.populateFiles(
+    uploadData: upload,
+    versionName: version,
+  );
 
-  await api.uploadFiles(requiredHashes: hashes, bytesFor: upload.bytesFor);
+  if (hashes.isEmpty) {
+    print('Finishing as there are no required hashes.');
+    api.closeClient();
+    return;
+  }
+
+  await api.uploadFiles(requiredHashes: hashes, uploadData: upload);
 
   await api.finalizeStatus(versionName: version);
   await api.release(versionName: version);
