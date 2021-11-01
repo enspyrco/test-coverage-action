@@ -1,0 +1,14 @@
+name: deploy_coverage
+description: Deploy coverage to Firebase hosting.
+version: 0.0.1
+
+environment:
+  sdk: '>=2.14.4 <3.0.0'
+
+dependencies: 
+  crypto: ^3.0.1
+  googleapis_auth: ^1.2.0
+  http: ^0.13.4
+
+dev_dependencies:
+  lints: ^1.0.0

@@ -4,3 +4,10 @@ description: 'Calculate test coverage and generate html'
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  inputs:
+    repoToken:
+      description: "The GITHUB_TOKEN secret"
+      required: false
+    serviceAccountKey:
+      description: "Service account key - JSON encoded as a String"
+      required: true
