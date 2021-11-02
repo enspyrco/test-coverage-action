@@ -1,21 +1,21 @@
 # action.yml
 name: 'Test Coverage'
 description: 'Calculate test coverage and generate html'
+inputs:
+  repo-token:
+    description: "The GITHUB_TOKEN secret"
+    required: false
+  service-account-key:
+    description: "Service account key - JSON encoded as a String"
+    required: true
+  package-name:
+    description: "If used in a multi-package monorepo, the name of the package to test"
+    required: false
+    default: ''
+  packages-path:
+    description: "The path to the packages folder (in a multi-package repo)"
+    required: false
+    default: ''
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  inputs:
-    repo-token:
-      description: "The GITHUB_TOKEN secret"
-      required: false
-    service-account-key:
-      description: "Service account key - JSON encoded as a String"
-      required: true
-    package-name:
-      description: "If used in a multi-package monorepo, the name of the package to test"
-      required: false
-      default: ''
-    packages-path:
-      description: "The path to the packages folder (in a multi-package repo)"
-      required: false
-      default: ''
