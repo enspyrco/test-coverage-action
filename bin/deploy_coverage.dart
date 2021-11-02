@@ -1,30 +1,45 @@
 import 'dart:io';
 
 import 'package:deploy_coverage/firebase_hosting_api.dart';
-import 'package:deploy_coverage/upload_metadata.dart';
+import 'package:deploy_coverage/upload_data.dart';
 
 void main(List<String> arguments) async {
-  final api = await FirebaseHostingApi.create(
+  // var packageName = arguments.first;
+  var packageName = const String.fromEnvironment('PACKAGE_NAME');
+
+  var api = await FirebaseHostingApi.create(
       key: File('key.json').readAsStringSync()); // arguments.first
 
-  final upload = await UploadData.createFrom(directory: arguments.first);
+  final uploadData = await UploadData.createFrom(directory: arguments.first);
 
-  var version = await api.retrieveVersion();
-  var hashes = await api.populateFiles(
-    uploadData: upload,
-    versionName: version,
-  );
+  var currentVersion = await api.getCurrentVersion();
 
-  if (hashes.isEmpty) {
-    print('Finishing as there are no required hashes.');
-    api.closeClient();
-    return;
+  // Allow coverage data for different packages to be uploaded at different
+  // times without overwriting everything.
+  if (packageName.isNotEmpty) {
+    var currentFiles = await api.listFiles(versionName: currentVersion);
+
+    // Add current file paths and hashes to upload data, if not from package.
+    for (var file in currentFiles) {
+      var firstSegment = file.path.split('/').elementAt(1);
+
+      if (firstSegment != packageName && firstSegment != '__') {
+        uploadData.json[file.path] = file.hash;
+      }
+    }
   }
 
-  await api.uploadFiles(requiredHashes: hashes, uploadData: upload);
+  var newVersion = await api.createNewVersion();
 
-  await api.finalizeStatus(versionName: version);
-  await api.release(versionName: version);
+  var requiredHashes = await api.populateFiles(
+    uploadData: uploadData,
+    versionName: newVersion,
+  );
+
+  await api.uploadFiles(requiredHashes: requiredHashes, uploadData: uploadData);
+
+  await api.finalizeStatus(versionName: newVersion);
+  await api.release(versionName: newVersion);
 
   api.closeClient();
 }

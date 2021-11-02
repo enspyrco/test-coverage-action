@@ -5,11 +5,18 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "run action with tech-world data",
+      "name": "tech_world",
       "request": "launch",
       "type": "dart",
       "program": "bin/deploy_coverage.dart",
-      "args": ["test/data/tech_world_html"],
+      "args": ["tech_world_html"],
+    },
+    {
+      "name": "basic",
+      "request": "launch",
+      "type": "dart",
+      "program": "bin/deploy_coverage.dart",
+      "args": ["basic_html"],
     }
   ]
 }

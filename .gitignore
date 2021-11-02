@@ -8,3 +8,5 @@ build/
 # Files used during prototyping & testing
 key.json
 .firebaserc
+basic_html/
+tech_world_html/

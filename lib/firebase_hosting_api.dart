@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:deploy_coverage/constants.dart';
-import 'package:deploy_coverage/upload_metadata.dart';
+import 'package:deploy_coverage/upload_data.dart';
+import 'package:deploy_coverage/version_file.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:googleapis_auth/googleapis_auth.dart';
 
@@ -14,7 +15,8 @@ import 'package:googleapis_auth/googleapis_auth.dart';
 ///
 class FirebaseHostingApi {
   late final String _siteId;
-  late final Uri _versionsUri;
+  late final Uri _createNewVersionUri;
+  late final Uri _getCurrentVersionUri;
   late final String _uploadUrl;
 
   final AuthClient _client;
@@ -25,7 +27,8 @@ class FirebaseHostingApi {
     var firebasercString = File('.firebaserc').readAsStringSync();
     _siteId = jsonDecode(firebasercString)['projects']['default'];
 
-    _versionsUri = Uri.https(host, 'v1beta1/sites/$_siteId/versions');
+    _createNewVersionUri = Uri.https(host, '/v1beta1/sites/$_siteId/versions');
+    _getCurrentVersionUri = Uri.https(host, '/v1beta1/sites/$_siteId/releases');
   }
 
   static Future<FirebaseHostingApi> create({required String key}) async {
@@ -37,9 +40,19 @@ class FirebaseHostingApi {
     return FirebaseHostingApi._(client);
   }
 
-  /// returns the [jsonName]
-  Future<String> retrieveVersion() async {
-    var response = await _client.post(_versionsUri,
+  Future<String> getCurrentVersion() async {
+    var response = await _client.get(_getCurrentVersionUri,
+        headers: {'Content-type': 'application/json'});
+
+    var releases = jsonDecode(response.body)['releases'] as List;
+    var current = releases.first;
+
+    return current['version']['name'] as String;
+  }
+
+  /// returns the [versionName]
+  Future<String> createNewVersion() async {
+    var response = await _client.post(_createNewVersionUri,
         headers: {'Content-type': 'application/json'},
         body: jsonEncode({
           "config": {
@@ -52,11 +65,32 @@ class FirebaseHostingApi {
           }
         }));
 
+    print(response.body);
+
     var versionName = jsonDecode(response.body)['name'];
 
     print('\n\nRetrieved version: $versionName');
 
     return versionName;
+  }
+
+  Future<List<VersionFile>> listFiles({required String versionName}) async {
+    var listFilesUri = Uri.https(host, '/v1beta1/$versionName/files');
+    print('\n\nListing files...');
+
+    var listFilesResponse = await _client
+        .get(listFilesUri, headers: {'Content-type': 'application/json'});
+    // print(listFilesResponse.body);
+
+    var responseJson = jsonDecode(listFilesResponse.body);
+
+    var filesJsonList = responseJson['files'] as JsonList;
+
+    var versionFiles = filesJsonList
+        .map<VersionFile>((element) => VersionFile.fromJson(element as JsonMap))
+        .toList();
+
+    return versionFiles;
   }
 
   Future<List<String>> populateFiles({
@@ -66,11 +100,14 @@ class FirebaseHostingApi {
     var populateUri = Uri.https(host, '/v1beta1/$versionName:populateFiles');
     print('\n\nPopulating files...');
 
+    print(uploadData.json);
+
     var populateResponse = await _client.post(
       populateUri,
       headers: {'Content-type': 'application/json'},
       body: jsonEncode(uploadData.json),
     );
+    print(populateResponse.body);
 
     var responseJson = jsonDecode(populateResponse.body);
 
