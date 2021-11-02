@@ -8,6 +8,9 @@ void main(List<String> arguments) async {
   var key = Platform.environment['INPUT_SERVICE-ACCOUNT-KEY'] ?? '';
   // var key = File('key.json').readAsStringSync();
 
+  print(packageName);
+  print('key length = ${key.length}');
+
   var api = await FirebaseHostingApi.create(key: key);
 
   final uploadData = await UploadData.createFrom(directory: arguments.first);
