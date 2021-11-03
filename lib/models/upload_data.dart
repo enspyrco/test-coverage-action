@@ -22,7 +22,7 @@ class UploadData {
   /// package the file data ready for upload to Firebase Hosting.
   static Future<UploadData> createFrom({required String directory}) async {
     var numFiles = 0;
-    var dir = Directory(directory);
+    var dir = Directory(directory + '/coverage');
     var json = <String, Object?>{};
     final bytesMap = <String, Uint8List>{};
     final pathMap = <String, String>{};
