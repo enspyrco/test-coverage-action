@@ -5,25 +5,28 @@ class RepoConfig {
   RepoConfig._();
 
   RepoConfig.detect() {
-    var packagesPath = Platform.environment['INPUT_PACKAGES_PATH'];
-    var packageName = Platform.environment['INPUT_PACKAGE_NAME'];
+    var packagesPath = Platform.environment['INPUT_PACKAGES_PATH'] ?? '';
+    var packageName = Platform.environment['INPUT_PACKAGE_NAME'] ?? '';
 
     print('packages path: $packageName, package name: $packageName');
 
     // add a trailing backslash to packagesPath if needed
-    if (packagesPath != null && packageName != null) {
+    if (packagesPath.isNotEmpty && packageName.isNotEmpty) {
       isMultiPackage = true;
-      dirName =
+      dirPath = './' +
           (packagesPath.startsWith('/') ? packagesPath : '/$packagesPath') +
-              packageName;
+          packageName;
     } else {
       isMultiPackage = false;
-      if ((packagesPath == null) ^ (packageName == null)) {
+      dirPath = './';
+
+      // throw to give helpful error message
+      if ((packagesPath.isNotEmpty) ^ (packageName.isNotEmpty)) {
         throw 'packageName and packagesPath must both be provided or neither.';
       }
     }
   }
 
   late final bool isMultiPackage;
-  late final String dirName;
+  late final String dirPath;
 }

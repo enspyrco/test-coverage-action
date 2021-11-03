@@ -20,9 +20,9 @@ class UploadData {
   /// A static function for asynchronously creating [UploadData] objects. All
   /// files in the given directory are used to calculate the metadata and
   /// package the file data ready for upload to Firebase Hosting.
-  static Future<UploadData> createFrom({required String directory}) async {
+  static Future<UploadData> createFrom({required String dirPath}) async {
     var numFiles = 0;
-    var dir = Directory(directory + '/coverage');
+    var dir = Directory(dirPath + 'coverage');
     var json = <String, Object?>{};
     final bytesMap = <String, Uint8List>{};
     final pathMap = <String, String>{};

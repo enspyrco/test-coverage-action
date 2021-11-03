@@ -9,13 +9,13 @@ import 'package:deploy_coverage/models/upload_data.dart';
 void main(List<String> arguments) async {
   var repo = RepoConfig.detect();
 
-  var key = Platform.environment['INPUT_SERVICE_ACCOUNT_KEY'];
-  if (key == null) throw 'key not found, check service_account_key input';
+  var key = Platform.environment['INPUT_SERVICE_ACCOUNT_KEY'] ?? '';
+  if (key.isEmpty) throw 'key not found, check service_account_key input';
   // var key = File('key.json').readAsStringSync();
 
   var api = await FirebaseHostingApi.create(key: key);
 
-  final uploadData = await UploadData.createFrom(directory: repo.dirName);
+  final uploadData = await UploadData.createFrom(dirPath: repo.dirPath);
 
   var currentVersion = await api.getCurrentVersion();
 
@@ -28,7 +28,7 @@ void main(List<String> arguments) async {
     for (var file in currentFiles) {
       var firstSegment = file.path.split('/').elementAt(1);
 
-      if (firstSegment != repo.dirName && firstSegment != '__') {
+      if (firstSegment != repo.dirPath && firstSegment != '__') {
         uploadData.json[file.path] = file.hash;
       }
     }
