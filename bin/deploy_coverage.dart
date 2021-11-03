@@ -4,8 +4,8 @@ import 'package:deploy_coverage/firebase_hosting_api.dart';
 import 'package:deploy_coverage/upload_data.dart';
 
 void main(List<String> arguments) async {
-  var packageName = Platform.environment['INPUT_PACKAGE-NAME'] ?? '';
-  var key = Platform.environment['INPUT_SERVICE-ACCOUNT-KEY'] ?? '';
+  var packageName = Platform.environment['INPUT_PACKAGE_NAME'] ?? '';
+  var key = Platform.environment['INPUT_SERVICE_ACCOUNT_KEY'] ?? '';
   // var key = File('key.json').readAsStringSync();
 
   print(packageName);
