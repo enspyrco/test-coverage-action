@@ -8,8 +8,14 @@ void main(List<String> arguments) async {
   var key = Platform.environment['INPUT_SERVICE_ACCOUNT_KEY'] ?? '';
   // var key = File('key.json').readAsStringSync();
 
-  print(packageName);
-  print('key length = ${key.length}');
+  // print(packageName);
+  // print('key length = ${key.length}');
+
+  // print the current directory contents, for debugging
+  Directory current = Directory.current;
+  for (var entity in current.listSync()) {
+    print(entity.path);
+  }
 
   var api = await FirebaseHostingApi.create(key: key);
 
