@@ -1,5 +1,5 @@
 import 'package:deploy_coverage/constants.dart';
-import 'package:deploy_coverage/status_enum.dart';
+import 'package:deploy_coverage/models/status_enum.dart';
 
 /// A static content file that is part of a version.
 ///

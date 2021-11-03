@@ -1,38 +1,34 @@
 import 'dart:io';
 
 import 'package:deploy_coverage/firebase_hosting_api.dart';
-import 'package:deploy_coverage/upload_data.dart';
+import 'package:deploy_coverage/models/repo_config.dart';
+import 'package:deploy_coverage/models/upload_data.dart';
 
+/// The CWD of the app is assumed to be $GITHUB_WORKSPACE
+/// This is true when run with the current entrypoint.sh
 void main(List<String> arguments) async {
-  var packageName = Platform.environment['INPUT_PACKAGE_NAME'] ?? '';
-  var key = Platform.environment['INPUT_SERVICE_ACCOUNT_KEY'] ?? '';
+  var repo = RepoConfig.detect();
+
+  var key = Platform.environment['INPUT_SERVICE_ACCOUNT_KEY'];
+  if (key == null) throw 'key not found, check service_account_key input';
   // var key = File('key.json').readAsStringSync();
-
-  // print(packageName);
-  // print('key length = ${key.length}');
-
-  // print the current directory contents, for debugging
-  Directory current = Directory.current;
-  for (var entity in current.listSync()) {
-    print(entity.path);
-  }
 
   var api = await FirebaseHostingApi.create(key: key);
 
-  final uploadData = await UploadData.createFrom(directory: arguments.first);
+  final uploadData = await UploadData.createFrom(directory: repo.dirName);
 
   var currentVersion = await api.getCurrentVersion();
 
   // Allow coverage data for different packages to be uploaded at different
   // times without overwriting everything.
-  if (packageName.isNotEmpty) {
+  if (repo.isMultiPackage) {
     var currentFiles = await api.listFiles(versionName: currentVersion);
 
     // Add current file paths and hashes to upload data, if not from package.
     for (var file in currentFiles) {
       var firstSegment = file.path.split('/').elementAt(1);
 
-      if (firstSegment != packageName && firstSegment != '__') {
+      if (firstSegment != repo.dirName && firstSegment != '__') {
         uploadData.json[file.path] = file.hash;
       }
     }

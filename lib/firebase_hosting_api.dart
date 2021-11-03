@@ -2,8 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:deploy_coverage/constants.dart';
-import 'package:deploy_coverage/upload_data.dart';
-import 'package:deploy_coverage/version_file.dart';
+import 'package:deploy_coverage/models/upload_data.dart';
+import 'package:deploy_coverage/models/version_file.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:googleapis_auth/googleapis_auth.dart';
 
