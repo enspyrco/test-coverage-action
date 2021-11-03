@@ -2,17 +2,17 @@
 name: 'Test Coverage'
 description: 'Calculate test coverage and generate html'
 inputs:
-  repo-token:
+  repo_token:
     description: "The GITHUB_TOKEN secret"
     required: false
-  service-account-key:
+  service_account_key:
     description: "Service account key - JSON encoded as a String"
     required: true
-  package-name:
+  package_name:
     description: "If used in a multi-package monorepo, the name of the package to test"
     required: false
     default: ''
-  packages-path:
+  packages_path:
     description: "The path to the packages folder (in a multi-package repo)"
     required: false
     default: ''
