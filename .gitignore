@@ -5,8 +5,6 @@
 # Conventional directory for build output.
 build/
 
-# Files used during prototyping & testing
+# Used during prototyping.
 key.json
-.firebaserc
-basic_html/
-tech_world_html/
+.local_dev.env
