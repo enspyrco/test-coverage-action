@@ -13,7 +13,7 @@
     {
       "label": "Copy Project Files",
       "type": "shell",
-      "command": "docker create --name tmp test-coverage-action;docker cp . tmp:/home/;docker commit tmp test-coverage-action;docker container rm tmp",
+      "command": "flutter clean;docker create --name tmp test-coverage-action;docker cp . tmp:/home/;docker commit tmp test-coverage-action;docker container rm tmp",
     },
     {
       "label": "Run Docker Image",
@@ -22,6 +22,7 @@
     },
     {
       "label": "Build, Copy, Run",
+      "dependsOrder": "sequence",
       "dependsOn": ["Build Docker Image", "Copy Project Files", "Run Docker Image"]
     }
   ]

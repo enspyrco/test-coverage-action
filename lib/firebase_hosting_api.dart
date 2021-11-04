@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:deploy_coverage/constants.dart';
 import 'package:deploy_coverage/models/upload_data.dart';
 import 'package:deploy_coverage/models/version_file.dart';
+import 'package:deploy_coverage/utils.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:googleapis_auth/googleapis_auth.dart';
 
@@ -65,22 +66,22 @@ class FirebaseHostingApi {
           }
         }));
 
-    print(response.body);
+    printIfDebugging(response.body);
 
     var versionName = jsonDecode(response.body)['name'];
 
-    print('\n\nRetrieved version: $versionName');
+    print('\nRetrieved version: $versionName');
 
     return versionName;
   }
 
   Future<List<VersionFile>> listFiles({required String versionName}) async {
     var listFilesUri = Uri.https(host, '/v1beta1/$versionName/files');
-    print('\n\nListing files...');
+    print('\nListing files...');
 
     var listFilesResponse = await _client
         .get(listFilesUri, headers: {'Content-type': 'application/json'});
-    // print(listFilesResponse.body);
+    printIfDebugging(listFilesResponse.body);
 
     var responseJson = jsonDecode(listFilesResponse.body);
 
@@ -98,7 +99,7 @@ class FirebaseHostingApi {
     required String versionName,
   }) async {
     var populateUri = Uri.https(host, '/v1beta1/$versionName:populateFiles');
-    print('\n\nPopulating files...');
+    print('\nPopulating files...');
 
     print(uploadData.json);
 
@@ -107,7 +108,7 @@ class FirebaseHostingApi {
       headers: {'Content-type': 'application/json'},
       body: jsonEncode(uploadData.json),
     );
-    print(populateResponse.body);
+    printIfDebugging(populateResponse.body);
 
     var responseJson = jsonDecode(populateResponse.body);
 
@@ -143,8 +144,8 @@ class FirebaseHostingApi {
     var statusResponse = await _client.patch(statusUri,
         headers: {'Content-type': 'application/json'},
         body: jsonEncode({'status': 'FINALIZED'}));
-
-    print(statusResponse.body);
+    print('\nFINALIZED');
+    printIfDebugging(statusResponse.body);
   }
 
   Future<void> release({required String versionName}) async {
@@ -152,7 +153,8 @@ class FirebaseHostingApi {
         host, '/v1beta1/sites/$_siteId/releases', {'versionName': versionName});
     var releaseResponse = await _client.post(releaseUri);
 
-    print(releaseResponse.body);
+    print('\nRELEASED');
+    printIfDebugging(releaseResponse.body);
   }
 
   void closeClient() => _client.close();

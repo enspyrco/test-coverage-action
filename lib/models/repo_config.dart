@@ -13,12 +13,12 @@ class RepoConfig {
     // add a trailing backslash to packagesPath if needed
     if (packagesPath.isNotEmpty && packageName.isNotEmpty) {
       isMultiPackage = true;
-      dirPath = './' +
+      dirPath =
           (packagesPath.startsWith('/') ? packagesPath : '/$packagesPath') +
-          packageName;
+              packageName;
     } else {
       isMultiPackage = false;
-      dirPath = './';
+      dirPath = '';
 
       // throw to give helpful error message
       if ((packagesPath.isNotEmpty) ^ (packageName.isNotEmpty)) {
