@@ -85,6 +85,15 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "6.1.2"
+  firebase_hosting_api_client:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: de50de3d34decd8fcdcbdef7db9c8d517c5f8b75
+      url: "https://github.com/enspyrco/firebase_hosting_api_client.git"
+    source: git
+    version: "0.0.1"
   frontend_server_client:
     dependency: transitive
     description:
@@ -322,7 +331,7 @@ packages:
       name: vm_service
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "7.3.0"
+    version: "7.4.0"
   watcher:
     dependency: transitive
     description:

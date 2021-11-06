@@ -1,50 +1,54 @@
-import 'dart:io';
-
-import 'package:deploy_coverage/firebase_hosting_api.dart';
 import 'package:deploy_coverage/models/repo_config.dart';
-import 'package:deploy_coverage/models/upload_data.dart';
+import 'package:deploy_coverage/utils/locator.dart';
+import 'package:firebase_hosting_api_client/client.dart';
 
 /// The CWD of the app is assumed to be $GITHUB_WORKSPACE
 /// This is true when run with the current entrypoint.sh
 void main(List<String> arguments) async {
-  var repo = RepoConfig.detect();
-
-  var key = Platform.environment['INPUT_SERVICE_ACCOUNT_KEY'] ?? '';
+  final workspaceDir = Locator.getEnvVar('GITHUB_WORKSPACE');
+  final key = Locator.getEnvVar('INPUT_SERVICE_ACCOUNT_KEY');
   if (key.isEmpty) throw 'key not found, check service_account_key input';
-  // var key = File('key.json').readAsStringSync();
 
-  var api = await FirebaseHostingApi.create(key: key);
+  var repo = RepoConfig.detect();
+  final uploadData = await UploadData.createFrom(
+      path: workspaceDir + '/' + repo.dirPath + 'coverage');
 
-  final uploadData = await UploadData.createFrom(dirPath: repo.dirPath);
-
-  var currentVersion = await api.getCurrentVersion();
+  var client = await FirebaseHostingApiClient.create(
+      serviceAccountKey: key, projectId: repo.projectId);
 
   // Allow coverage data for different packages to be uploaded at different
   // times without overwriting everything.
-  if (repo.isMultiPackage) {
-    var currentFiles = await api.listFiles(versionName: currentVersion);
 
-    // Add current file paths and hashes to upload data, if not from package.
-    for (var file in currentFiles) {
-      var firstSegment = file.path.split('/').elementAt(1);
+  // var currentVersion = await client.getCurrentVersion();
 
-      if (firstSegment != repo.dirPath && firstSegment != '__') {
-        uploadData.json[file.path] = file.hash;
-      }
-    }
-  }
+  // if (repo.isMultiPackage) {
+  //   var currentFiles = await client.listFiles(versionName: currentVersion);
 
-  var newVersion = await api.createNewVersion();
+  //   // Add current file paths and hashes to upload data, if not from package.
+  //   for (var file in currentFiles) {
+  //     var firstSegment = file.path.split('/').elementAt(1);
 
-  var requiredHashes = await api.populateFiles(
-    uploadData: uploadData,
+  //     if (firstSegment != repo.dirPath && firstSegment != '__') {
+  //       uploadData.json[file.path] = file.hash;
+  //     }
+  //   }
+  // }
+
+  var newVersion = await client.createNewVersion();
+
+  var requiredHashes = await client.populateFiles(
+    json: uploadData.json,
     versionName: newVersion,
   );
 
-  await api.uploadFiles(requiredHashes: requiredHashes, uploadData: uploadData);
+  await client.uploadFiles(
+    requiredHashes: requiredHashes,
+    pathForHash: uploadData.pathForHash,
+    bytesForHash: uploadData.bytesForHash,
+  );
 
-  await api.finalizeStatus(versionName: newVersion);
-  await api.release(versionName: newVersion);
+  await client.finalizeStatus(versionName: newVersion);
+  await client.release(versionName: newVersion);
 
-  api.closeClient();
+  client.close();
 }

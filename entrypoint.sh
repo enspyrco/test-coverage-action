@@ -1,10 +1,14 @@
 #!/bin/sh -l
 
 # CWD = $GITHUB_WORKSPACE
-echo "bash: CWD = $PWD, GITHUB_WORKSPACE = $GITHUB_WORKSPACE"
-flutter test --coverage
-genhtml coverage/lcov.info -o coverage/$INPUT_PACKAGE_NAME
-rm coverage/lcov.info
-gzip -r coverage/$INPUT_PACKAGE_NAME
+export PACKAGE_PATH=${INPUT_PACKAGES_PATH}${INPUT_PACKAGE_NAME:+/$INPUT_PACKAGE_NAME}
+echo "bash: CWD = $PWD, GITHUB_WORKSPACE = $GITHUB_WORKSPACE, PACKAGE_PATH = $PACKAGE_PATH"
+echo "Contents of CWD:"
+echo $(ls)
+export PACKAGE_PATH=${PACKAGE_PATH:-.} # if single package repo set package path to .
+echo ${PACKAGE_PATH-.}
+cd ${PACKAGE_PATH-.} && dart pub get && flutter test --coverage && genhtml coverage/lcov.info -o coverage
+echo "Downloading deps for the Action's Dart app."
 cd /app && dart pub get
+echo "Running the Action's Dart app."
 cd $GITHUB_WORKSPACE && dart run /app/bin/deploy_coverage.dart
