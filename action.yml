@@ -14,6 +14,9 @@ inputs:
   packages_path:
     description: "The path to the packages folder (in a multi-package repo)"
     required: false
+  site_id:
+    description: "The id of the hosting site to deploy to. If not included, the action will attempt to read from the repo's .firebaserc."
+    required: false
 runs:
   using: 'docker'
   image: 'Dockerfile'

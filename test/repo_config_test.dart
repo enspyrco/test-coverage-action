@@ -9,7 +9,7 @@ void main() {
     test('.createFrom() reads in Env Var from Locator', () {
       Locator.setEnvVar('INPUT_PACKAGES_PATH', 'packages');
       Locator.setEnvVar('INPUT_PACKAGE_NAME', 'redfire');
-      Locator.setEnvVar('INPUT_PROJECT_ID', 'enspyrco');
+      Locator.setEnvVar('INPUT_SITE_ID', 'enspyrco');
 
       var repo = RepoConfig.detect();
 
