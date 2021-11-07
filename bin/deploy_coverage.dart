@@ -16,33 +16,24 @@ void main(List<String> arguments) async {
   var client = await FirebaseHostingApiClient.create(
       serviceAccountKey: key, projectId: repo.projectId);
 
-  // Allow coverage data for different packages to be uploaded at different
-  // times without overwriting everything.
-
-  // var currentVersion = await client.getCurrentVersion();
-
-  // if (repo.isMultiPackage) {
-  //   var currentFiles = await client.listFiles(versionName: currentVersion);
-
-  //   // Add current file paths and hashes to upload data, if not from package.
-  //   for (var file in currentFiles) {
-  //     var firstSegment = file.path.split('/').elementAt(1);
-
-  //     if (firstSegment != repo.dirPath && firstSegment != '__') {
-  //       uploadData.json[file.path] = file.hash;
-  //     }
-  //   }
-  // }
+  // Allow coverage data to be uploaded without overwriting by first downloading
+  // info for current files & adding to UploadData
+  if (repo.isMultiPackage) {
+    var currentVersion = await client.getCurrentVersion();
+    var currentFiles = await client.listFiles(versionName: currentVersion);
+    uploadData.add(currentFiles);
+  }
 
   var newVersion = await client.createNewVersion();
 
-  var requiredHashes = await client.populateFiles(
+  var result = await client.populateFiles(
     json: uploadData.json,
     versionName: newVersion,
   );
 
   await client.uploadFiles(
-    requiredHashes: requiredHashes,
+    uploadUrl: result.uploadUrl,
+    requiredHashes: result.requiredHashes,
     pathForHash: uploadData.pathForHash,
     bytesForHash: uploadData.bytesForHash,
   );
