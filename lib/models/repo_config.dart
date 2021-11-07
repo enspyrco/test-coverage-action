@@ -44,7 +44,7 @@ class RepoConfig {
       }
     }
 
-    // Get the projectId from an env var ifor from the .firebaserc
+    // Get the projectId from an env var if present or from the .firebaserc
     final projectIdEnvVar = Locator.getEnvVar('INPUT_SITE_ID');
     if (projectIdEnvVar.isEmpty) {
       var firebasercString = File('$dirPath.firebaserc').readAsStringSync();

@@ -7,7 +7,7 @@ echo "Contents of CWD:"
 echo $(ls)
 export PACKAGE_PATH=${PACKAGE_PATH:-.} # if single package repo set package path to .
 echo ${PACKAGE_PATH-.}
-cd ${PACKAGE_PATH-.} && dart pub get && flutter test --coverage && genhtml coverage/lcov.info -o coverage
+cd ${PACKAGE_PATH-.} && dart pub get && flutter pub run build_runner build ; flutter test --coverage && genhtml coverage/lcov.info -o coverage
 echo "Downloading deps for the Action's Dart app."
 cd /app && dart pub get
 echo "Running the Action's Dart app."
