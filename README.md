@@ -13,7 +13,7 @@ Future Work
 
 ## Setup
 
-Setup guides can be found in the [Projects Notes > Documentation](https://enspyrco.notion.site/Documentation-ca43453f811f456dae4d7dbcd04a41a6).
+Setup guides can be found in the [User Docs](https://www.notion.so/enspyrco/User-Docs-08425ed98ebc423084e57fff4060376f).
 
 ## Usage
 
